@@ -7,6 +7,13 @@ This package provides a general hand-eye calibration method which can be applied
 Unlike usual hand-eye calibration techniques, this method directly takes the images of the calibration pattern (like chessboard) and estimates the hand-eye transformation and the pattern pose such that the projection error of the pattern is minimized. Since it doesn't rely on algorithms dedicated for pinhole cameras, such as PnP algorithm, it can be easily adapted to different camera model by changing only the projection model.
 
 
+### Dependencies
+
+- g2o
+- VISP
+- handeye_calib_camodocal (optional, for only evaluation)
+
+
 ### Reproduce figures
 
 ```bash

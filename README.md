@@ -21,3 +21,6 @@ cd ../scripts
 # see the reconstructed point cloud
 pcl_viewer data/points_3d_graph.pcd
 ```
+
+### Paper
+Kenji Koide and Emanuele Menegatti, General Hand-Eye Calibration based on Reprojection Error Minimization, IEEE Robotics and Automation Letters, (under view).

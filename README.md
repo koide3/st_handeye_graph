@@ -1,6 +1,13 @@
 ## st_handeye_graph
 
-To reproduce figures.
+This package provides a general hand-eye calibration method which can be applied to pinhole and source-detector camera models.
+
+### Description
+
+Unlike usual hand-eye calibration techniques, this method directly takes the images of the calibration pattern (like chessboard) and estimates the hand-eye transformation and the pattern pose such that the projection error of the pattern is minimized. Since it doesn't rely on algorithms dedicated for pinhole cameras, such as PnP algorithm, it can be easily adapted to different camera model by changing only the projection model.
+
+
+### Reproduce figures
 
 ```bash
 git clone https://github.com/koide3/st_handeye_graph.git
@@ -24,3 +31,7 @@ pcl_viewer data/points_3d_graph.pcd
 
 ### Paper
 Kenji Koide and Emanuele Menegatti, General Hand-Eye Calibration based on Reprojection Error Minimization, IEEE Robotics and Automation Letters, (under view).
+
+## Contact
+Kenji Koide, Intelligent Autonomous Systems Laboratory, University of Padova, Italy.
+koide@dei.unipd.it

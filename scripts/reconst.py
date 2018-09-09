@@ -97,6 +97,20 @@ def save_pcd(filename, points_3d):
 			print >> f, '%f %f %f' % tuple(point)
 
 
+def evaluate_flatness(points_3d):
+	mean = numpy.mean(points_3d, axis=0)
+	normalized = points_3d - mean
+
+	w, v = numpy.linalg.eig(normalized.T.dot(normalized))
+
+	plane_space = v.dot(normalized.T)
+	depths = plane_space[2, :]
+
+	errors = depths - numpy.mean(depths)
+
+	return numpy.sum(numpy.abs(errors)) / points_3d.shape[0]
+
+
 def reconstruct(params, hand2eye_name, args):
 	data_ids = params['data_ids']
 	camera_matrix = params['camera_matrix']
@@ -134,10 +148,12 @@ def reconstruct(params, hand2eye_name, args):
 
 	points_3d = numpy.array(points_3d)
 
+	num_total_points = 0
 	reproj_error = 0
 	for i in range(4):
 		for point_2d, point_3d in zip(points[:, i, :], points_3d):
 			uv = project(point_3d, world2hands[i])
+			num_total_points += 1
 			reproj_error += numpy.linalg.norm(uv - point_2d)
 			# cv2.circle(images[i], tuple(point_2d.astype(numpy.int32)), 5, (255, 0, 0), -1)
 			cv2.circle(images[i], tuple(uv.astype(numpy.int32)), 10, (0, 255, 0), -1)
@@ -146,10 +162,10 @@ def reconstruct(params, hand2eye_name, args):
 		cv2.imwrite('%s/%03d_reproj.jpg' % (args.directory, i), images[i])
 		cv2.imshow('projected', cv2.resize(images[i], (images[i].shape[1] / 2, images[i].shape[0] / 2)))
 		cv2.waitKey(100)
+	reproj_error = reproj_error / num_total_points
 
 	# evaluate flatness
-	cov = numpy.cov(points_3d.T)
-	flatness_error = numpy.linalg.eig(cov)[0][-1]
+	flatness_error = evaluate_flatness(points_3d)
 
 	numpy.savetxt('data/points_3d_%s.csv' % hand2eye_name, points_3d)
 	save_pcd('data/points_3d_%s.pcd' % hand2eye_name, points_3d)

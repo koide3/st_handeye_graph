@@ -26,18 +26,21 @@ public:
           robust_kernel_source_delta(1.0)
     {}
 
-    double world2hand_inf_scale_trans;
-    double world2hand_inf_scale_rot;
-    double pattern2d_inf_scale;
-    double source_inf_scale;
-    std::string solver_name;
-    int num_iterations;
-    std::string robust_kernel_handpose;
-    std::string robust_kernel_projection;
-    std::string robust_kernel_source;
-    double robust_kernel_handpose_delta;
-    double robust_kernel_projection_delta;
-    double robust_kernel_source_delta;
+    // scale of information matrices
+    double world2hand_inf_scale_trans;      // translation part of world2hand transformation
+    double world2hand_inf_scale_rot;        // rotation part of world2hand transformation
+    double pattern2d_inf_scale;             // projection
+    double source_inf_scale;                // source point (source-detector model only)
+
+    // g2o settings
+    std::string solver_name;                // gn_var, lm_var, gn_var_cholmod, lm_var_cholmod ...
+    int num_iterations;                     // maximum number of iterations
+    std::string robust_kernel_handpose;     // robust kernel applied to handpose edges
+    std::string robust_kernel_projection;   // robust kernel applied to projection edges
+    std::string robust_kernel_source;       // robust kernel applied to source edges (source-detector model only)
+    double robust_kernel_handpose_delta;    // robust kernel delta
+    double robust_kernel_projection_delta;  // 
+    double robust_kernel_source_delta;      // (source-detector model only)
 };
 
 /**

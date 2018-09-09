@@ -85,6 +85,9 @@ std::vector<Eigen::Isometry3d> calc_object2eyes(
     return object2eyes;
 }
 
+/**
+ * @brief estimates hane-eye transformation using Tsai's algorithm
+ */
 bool spatial_calibration_visp (
     const Eigen::Matrix3d& camera_matrix,
     const Eigen::MatrixXd& pattern_3d,
@@ -116,6 +119,9 @@ bool spatial_calibration_visp (
     return true;
 }
 
+/**
+ * @brief estimates hane-eye transformation using Dual quaternions-based method
+ */
 bool spatial_calibration_dualquaternion (
     const Eigen::Matrix3d& camera_matrix,
     const Eigen::MatrixXd& pattern_3d,

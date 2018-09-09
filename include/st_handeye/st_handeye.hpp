@@ -32,9 +32,11 @@ public:
     double pattern2d_inf_scale;             // projection
     double source_inf_scale;                // source point (source-detector model only)
 
-    // g2o settings
+    // optimization settings
     std::string solver_name;                // gn_var, lm_var, gn_var_cholmod, lm_var_cholmod ...
     int num_iterations;                     // maximum number of iterations
+
+    // robust kernels
     std::string robust_kernel_handpose;     // robust kernel applied to handpose edges
     std::string robust_kernel_projection;   // robust kernel applied to projection edges
     std::string robust_kernel_source;       // robust kernel applied to source edges (source-detector model only)
@@ -66,6 +68,9 @@ std::vector<Eigen::Isometry3d> calc_object2eyes(
  * @param object2world     (input) initial guess -> (output) estimated object2world transformation
  * @param params           optimization parameters
  * @return if calibration successed
+ *
+ * @note We recommend to first use spatial_calibration_visp to obtain an initial guess, 
+ *       and then the input the result to this function
  */
 bool spatial_calibration_graph (
     const Eigen::Matrix3d& camera_matrix,
@@ -79,14 +84,14 @@ bool spatial_calibration_graph (
 
 /**
  * @brief hand-eye calibration using Tsai's algorithm in VISP
- * @param camera_matrix
- * @param pattern_3d
- * @param world2hands
- * @param pattern_2ds
- * @param hand2eye
- * @param object2world
- * @param params
- * @return
+ * @param camera_matrix    camera intrinsic parameters
+ * @param pattern_3d       3d coordinates of the points on the calibration pattern
+ * @param world2hands      world2hand transformations (hand poses[N])
+ * @param pattern_2ds      visually detected points of the pattern (Matrix<M, 3> * N)
+ * @param hand2eye         (input) initial guess -> (output) estimated hand2eye transformation
+ * @param object2world     (input) initial guess -> (output) estimated object2world transformation
+ * @param params           optimization parameters (not used in this function)
+ * @return if calibration successed
  */
 bool spatial_calibration_visp (
     const Eigen::Matrix3d& camera_matrix,
@@ -100,14 +105,14 @@ bool spatial_calibration_visp (
 
 /**
  * @brief hand-eye calibration using Dual Quaternions-based method (handeye_calib_camodocal)
- * @param camera_matrix
- * @param pattern_3d
- * @param world2hands
- * @param pattern_2ds
- * @param hand2eye
- * @param object2world
- * @param params
- * @return
+ * @param camera_matrix    camera intrinsic parameters
+ * @param pattern_3d       3d coordinates of the points on the calibration pattern
+ * @param world2hands      world2hand transformations (hand poses[N])
+ * @param pattern_2ds      visually detected points of the pattern (Matrix<M, 3> * N)
+ * @param hand2eye         (input) initial guess -> (output) estimated hand2eye transformation
+ * @param object2world     (input) initial guess -> (output) estimated object2world transformation
+ * @param params           optimization parameters (not used in this function)
+ * @return if calibration successed
  */
 bool spatial_calibration_dualquaternion (
     const Eigen::Matrix3d& camera_matrix,

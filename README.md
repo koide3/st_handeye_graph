@@ -41,7 +41,7 @@ pcl_viewer data/points_3d_graph.pcd
 ```
 
 ### Paper
-Kenji Koide and Emanuele Menegatti, General Hand-Eye Calibration based on Reprojection Error Minimization, IEEE Robotics and Automation Letters, (under view).
+Kenji Koide and Emanuele Menegatti, General Hand-Eye Calibration based on Reprojection Error Minimization, IEEE Robotics and Automation Letters/ICRA2019 [[link](https://ieeexplore.ieee.org/document/8616862)].
 
 ## Contact
 Kenji Koide, Intelligent Autonomous Systems Laboratory, University of Padova, Italy.

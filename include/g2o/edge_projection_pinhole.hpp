@@ -21,7 +21,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     EdgeProjectionPinhole() :
-        g2o::BaseUnaryEdge<2, g2o::Vector2D, g2o::VertexSE3>()
+        g2o::BaseUnaryEdge<2, Eigen::Vector2d, g2o::VertexSE3>()
     {
         resizeParameters(2);
         installParameter(camparam, 0);

@@ -12,6 +12,8 @@ namespace g2o {
 // v[0] = hand2eye
 // v[1] = object2world
 // v[2] = object2eye = hand2eye * world2hand * object2world
+typedef Eigen::Matrix<double,6,1> Vector6d;
+    
 class EdgeHandeyeTransform : public g2o::BaseMultiEdge<6, Eigen::Isometry3d> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

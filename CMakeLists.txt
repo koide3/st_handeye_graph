@@ -1,8 +1,11 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.12)
 project(st_handeye)
 
 add_compile_options(-std=c++11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
+set(VISP_DIR ${VISP_DIR} "/home/hollydinkel/visp-build-release")
+set(Eigen3_DIR ${Eigen3_DIR} "/usr/include/eigen3")
+set(OpenCV_DIR ${OpenCV_DIR} "/usr/include/opencv4/opencv2") # opencv4
 
 find_package(G2O REQUIRED)
 find_package(VISP REQUIRED)
@@ -66,29 +69,29 @@ target_link_libraries(st_handeye_visp
   ${VISP_LIBRARIES}
 )
 
-# handeye_simulation
-add_executable(handeye_simulation
-  src/handeye_simulation.cpp
-)
-target_link_libraries(handeye_simulation
-  st_handeye_graph
-  st_handeye_visp
-)
-add_dependencies(handeye_simulation
-  st_handeye_graph
-  st_handeye_visp
-)
+# # handeye_simulation
+# add_executable(handeye_simulation
+#   src/handeye_simulation.cpp
+# )
+# target_link_libraries(handeye_simulation
+#   st_handeye_graph
+#   st_handeye_visp
+# )
+# add_dependencies(handeye_simulation
+#   st_handeye_graph
+#   st_handeye_visp
+# )
 
-# handeye_simulation_xray
-add_executable(handeye_simulation_xray
-  src/handeye_simulation_xray.cpp
-)
-target_link_libraries(handeye_simulation_xray
-    st_handeye_graph_xray
-)
-add_dependencies(handeye_simulation_xray
-  st_handeye_graph_xray
-)
+# # handeye_simulation_xray
+# add_executable(handeye_simulation_xray
+#   src/handeye_simulation_xray.cpp
+# )
+# target_link_libraries(handeye_simulation_xray
+#     st_handeye_graph_xray
+# )
+# add_dependencies(handeye_simulation_xray
+#   st_handeye_graph_xray
+# )
 
 # calibrate
 add_executable(calibrate
@@ -99,6 +102,19 @@ target_link_libraries(calibrate
     st_handeye_visp
 )
 add_dependencies(calibrate
+  st_handeye_graph
+  st_handeye_visp
+)
+
+# calibrate charuco
+add_executable(calibrate_charuco
+  src/calibrate_charuco.cpp
+)
+target_link_libraries(calibrate_charuco
+    st_handeye_graph
+    st_handeye_visp
+)
+add_dependencies(calibrate_charuco
   st_handeye_graph
   st_handeye_visp
 )

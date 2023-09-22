@@ -5,12 +5,12 @@ mkdir data
 # camera_params="../../st_handeye_eval/camera_info.yaml"
 # calib_test_dir="../../st_handeye_eval/calib_test"
 
-camera_params="../calibration_data/camera_info.yaml"
-calib_test_dir="../calibration_data/calib_a"
+camera_params="../calibration_data/20230920_camera_info.yaml"
+calib_test_dir="../calibration_data/20230920"
 
 # reconst_dir="../../st_handeye_eval/spirit_reconst"
 
-command="../build/calibrate -u"
+command="../build/calibrate_charuco -u"
 command="$command -c $camera_params"
 command="$command --visual_inf_scale 1e-6"
 command="$command --handpose_inf_scale_trans 1e-3"

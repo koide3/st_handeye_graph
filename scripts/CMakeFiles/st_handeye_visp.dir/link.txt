@@ -1,0 +1,2 @@
+/usr/bin/ar qc libst_handeye_visp.a CMakeFiles/st_handeye_visp.dir/src/st_handeye_visp.cpp.o
+/usr/bin/ranlib libst_handeye_visp.a

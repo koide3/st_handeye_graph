@@ -20,7 +20,7 @@ def simulate(params):
 	lines = output.strip().split('\n')
 	result = lines[-1].split(' ')
 
-	print result
+	print(result)
 	# terror_detector, rerror_detector, terror_source
 	return result[1::2]
 
@@ -34,7 +34,7 @@ def simulate_ntimes(params, n):
 	results = numpy.float32(results)
 	mean_std = numpy.mean(results, axis=0), numpy.std(results, axis=0)
 
-	print mean_std[0], mean_std[1]
+	print(mean_std[0], mean_std[1])
 	return mean_std, results
 
 
@@ -96,7 +96,7 @@ def main():
 	vnoise_results = []
 	vnoise_all_results = []
 	for vnoise in numpy.arange(0.0, 5.1, 1.0):
-		print 'vnoise', vnoise
+		print('vnoise', vnoise)
 		params = default_params.copy()
 		params['vnoise'] = vnoise
 
@@ -117,7 +117,7 @@ def main():
 	tnoise_results = []
 	tnoise_all_results = []
 	for tnoise in numpy.arange(0.0, 0.251, 0.05):
-		print 'tnoise', tnoise
+		print('tnoise', tnoise)
 		params = default_params.copy()
 		params['tnoise'] = tnoise
 
@@ -138,7 +138,7 @@ def main():
 	rnoise_results = []
 	rnoise_all_results = []
 	for rnoise in numpy.arange(0.0, 10.1, 1.0):
-		print 'rnoise', rnoise
+		print('rnoise', rnoise)
 		params = default_params.copy()
 		params['rnoise'] = rnoise
 

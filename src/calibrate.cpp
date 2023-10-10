@@ -4,12 +4,11 @@
 #include <sstream>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
-#include <opencv4/opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
 #include <st_handeye/st_handeye.hpp>
-
 
 /**
  * @brief The Dataset struct
@@ -83,7 +82,6 @@ public:
         return m;
     }
 
-    // reads data from a directory
     static std::shared_ptr<Dataset> read(const std::string& dataset_dir, const std::string& ros_camera_params_file, bool visualize) {
         int PATTERN_ROWS = 9;
         int PATTERN_COLS = 11;
@@ -133,8 +131,6 @@ public:
             cv::Mat undistorted;
             cv::undistort(image, undistorted, cv_camera_matrix, cv_distortion);
 
-            std::cout << "reached here" << std::endl;
-
             cv::Mat cv_grid_2d;
             bool ret = cv::findChessboardCorners(undistorted, cv::Size(PATTERN_ROWS, PATTERN_COLS), cv_grid_2d, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
             cv::drawChessboardCorners(undistorted, cv::Size(PATTERN_ROWS, PATTERN_COLS), cv_grid_2d, ret);
@@ -151,9 +147,11 @@ public:
                 grid_2d(1, i) = cv_grid_2d.at<cv::Vec2f>(i)[1];
             }
 
-            std::cout << "Number of rows: " << grid_2d.rows() << std::endl;
-            std::cout << "Number of rows: " << grid_2d.cols() << std::endl;
+            std::cout << grid_2d << std::endl;
 
+            std::cout << "Number of rows: " << grid_2d.rows() << std::endl;
+            std::cout << "Number of columns: " << grid_2d.cols() << std::endl;
+            
             dataset->images.push_back(undistorted);
             dataset->handposes.push_back(handpose);
             dataset->pattern_2ds.push_back(grid_2d);

@@ -4,13 +4,11 @@
 #include <sstream>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
-#include <opencv4/opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <opencv2/aruco/charuco.hpp>
-
 #include <st_handeye/st_handeye.hpp>
-
 
 /**
  * @brief The Dataset struct
@@ -84,35 +82,20 @@ public:
         return m;
     }
 
-    static void getBoardObjectAndImagePoints(const cv::Ptr<cv::aruco::Board> board, 
-                                          std::vector<cv::Point2f> _corners,
-                                          std::vector<int>         _ids, 
-                                          std::vector<cv::Point3f> *objPoints, 
-                                          std::vector<cv::Point2f> *imgPoints) 
-        {
-            CV_Assert(board->ids.size() == board->objPoints.size());
-            CV_Assert(_ids.size() == _corners.size());
-            int nDetectedMarkers = (int)_ids.size();
-            // look for detected markers that belong to the board and get their information
-            for(int i = 0; i < nDetectedMarkers; i++) {
-                int currentId = _ids[i];
-                for(unsigned int j = 0; j < board->ids.size(); j++) {
-                    if(currentId == board->ids[j]) {
-                        for(int p = 0; p < 4; p++) {
-                            objPoints->push_back(board->objPoints[j][p]);
-                            imgPoints->push_back(_corners[p]);
-                        }
-                    }
-                }
+    static std::shared_ptr<Dataset> read(const std::string& dataset_dir, const std::string& ros_camera_params_file, cv::Ptr<cv::aruco::Dictionary> dictionary, cv::Ptr<cv::aruco::CharucoBoard> board, bool visualize) {
+        int PATTERN_ROWS = 4;
+        int PATTERN_COLS = 6;
+        double L = 0.024;
+        std::shared_ptr<Dataset> dataset(new Dataset());
+        dataset->pattern_3d.resize(3, PATTERN_ROWS * PATTERN_COLS);
+        for(int j=0; j<PATTERN_COLS; j++) {
+            for(int i=0; i<PATTERN_ROWS; i++) {
+                double x = L * (PATTERN_ROWS - i);
+                double y = L * (j + 1);
+                int idx = j * PATTERN_ROWS + i;
+                dataset->pattern_3d.col(idx) = Eigen::Vector3d(x, y, 0.0);
             }
         }
-
-    // reads data from a directory
-    static std::shared_ptr<Dataset> read(const std::string& dataset_dir, const std::string& ros_camera_params_file, bool visualize) {
-        float L = 0.024;
-        std::shared_ptr<Dataset> dataset(new Dataset());
-        cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
-        cv::Ptr<cv::aruco::CharucoBoard> board = cv::aruco::CharucoBoard::create(7, 10, 0.024f, 0.018f, dictionary);
 
         if(!ros_camera_params_file.empty()) {
             if(!dataset->read_ros_camera_params(ros_camera_params_file)) {
@@ -148,76 +131,44 @@ public:
             cv::Mat undistorted;
             cv::undistort(image, undistorted, cv_camera_matrix, cv_distortion);
 
-            std::cout << "reached here" << std::endl;
-
             cv::Mat imageCopy;
             std::vector<int> markerIds;
-            // cv::cvtColor(image, imageCopy, cv::COLOR_BGR2GRAY);
             image.copyTo(imageCopy);
             std::vector<std::vector<cv::Point2f> > markerCorners;
             cv::Ptr<cv::aruco::DetectorParameters> params = cv::aruco::DetectorParameters::create();
             params->cornerRefinementMethod = cv::aruco::CORNER_REFINE_NONE;
             cv::aruco::detectMarkers(image, board->dictionary, markerCorners, markerIds, params);
-            std::cout << "num of detected marker corners: " << markerCorners.size() << std::endl;
-            cv::Scalar color = cv::Scalar(255, 0, 0);
 
-            // if at least one marker detected
-            if (markerIds.size() > 0) {
-                cv::aruco::drawDetectedMarkers(imageCopy, markerCorners, cv::noArray());
-                std::vector<cv::Point2f> charucoCorners;
-                std::vector<int> charucoIds;
-                std::vector<cv::Point3f> charucoPoints3D;
-                std::vector<cv::Point2f> imgPoints;
-                // cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, image, board, charucoCorners, charucoIds, cv_camera_matrix, cv_distortion, 0);
-                // passing the camera parameters does not work - probably using the wrong intrinsics
-                cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, image, board, charucoCorners, charucoIds, cv::noArray(), cv::noArray(), 0);
-                std::cout << "size of charucoCorners: " << charucoCorners.size() << std::endl;
-                // std::cout << "Charuco Corners: " << charucoCorners << std::endl;
-                cv::aruco::drawDetectedCornersCharuco(imageCopy, charucoCorners, cv::noArray(), color);
-                cv::Vec3d rvec, tvec;
-                bool valid = cv::aruco::estimatePoseCharucoBoard(charucoCorners, charucoIds, board, cv_camera_matrix, cv_distortion, rvec, tvec);
-                std::cout << "valid estimation? " << valid << std::endl;
+            cv::aruco::drawDetectedMarkers(imageCopy, markerCorners, cv::noArray());
+            std::vector<cv::Point2f> charucoCorners;
+            std::vector<int> charucoIds;
+            std::vector<cv::Point3f> charucoPoints3D;
+            std::vector<cv::Point2f> imgPoints;
+            cv::aruco::interpolateCornersCharuco(markerCorners, markerIds, image, board, charucoCorners, charucoIds, cv_camera_matrix, cv_distortion, 0);
+            cv::aruco::drawDetectedCornersCharuco(imageCopy, charucoCorners, cv::noArray(), cv::Scalar(255, 0, 0));
+            cv::Mat rvec, tvec;
+            bool valid = cv::aruco::estimatePoseCharucoBoard(charucoCorners, charucoIds, board, cv_camera_matrix, cv_distortion, rvec, tvec);
 
-                cv::drawFrameAxes(imageCopy, cv_camera_matrix, cv_distortion, rvec, tvec, 0.1f);
-                getBoardObjectAndImagePoints(board, charucoCorners, charucoIds, &charucoPoints3D, &imgPoints);
-                std::cout << "size of charucoPoints3d: " << charucoPoints3D.size() << std::endl;
-
-                dataset->pattern_3d.resize(3, charucoPoints3D.size());
-                // Eigen::MatrixXd pattern_3d(charucoPoints3D.size(), 3);
-                // for (int i = 0; i < charucoPoints3D.size(); i++) {
-                //     pattern_3d(i, 0) = charucoPoints3D[i].x;
-                //     pattern_3d(i, 1) = charucoPoints3D[i].y;
-                //     pattern_3d(i, 2) = charucoPoints3D[i].z;
-                // }
-                // dataset->pattern_3d=pattern_3d;
-                Eigen::MatrixXd pattern_3d(charucoPoints3D.size(), 3);
-                for (int i = 0; i < charucoPoints3D.size(); i++) {
-                    dataset->pattern_3d.col(i) = Eigen::Vector3d(charucoPoints3D[i].x, charucoPoints3D[i].y, 0.0);
-                }
-                dataset->pattern_3d=pattern_3d;
-
-                cv::imwrite(dataset_dir + "/" + data_id + "_image_charuco.jpg", imageCopy);
+            for (int i = 0; i < charucoCorners.size()-1; i++) {
+                cv::line(imageCopy, charucoCorners[i], charucoCorners[i+1], cv::Scalar(0, 255, 0));
             }
 
-            else {
-                std::cerr << "failed to find charuco ids!!" << std::endl;
-                std::cerr << filename << std::endl;
-                continue;
+            cv::drawFrameAxes(imageCopy, cv_camera_matrix, cv_distortion, rvec, tvec, 0.1f);
+
+            cv::imwrite(dataset_dir + "/" + data_id + "_image_charuco.jpg", imageCopy);
+
+            Eigen::MatrixXd grid_2d(2, PATTERN_ROWS * PATTERN_COLS);
+            std::cout << "charucoCorners.size(): " << charucoCorners.size() << std::endl;
+            for (int i = 0; i < PATTERN_ROWS * PATTERN_COLS; i++) {
+                grid_2d(0, i) = charucoCorners[i].x;
+                grid_2d(1, i) = charucoCorners[i].y;
             }
 
-            std::cout << "reached here" << std::endl;
+            std::cout << grid_2d << std::endl;
 
-            Eigen::MatrixXd grid_2d(2, markerCorners.size()*4);
-            std::cout << "markerCorners.size(): " << markerCorners.size() << std::endl;
-            for (int i = 0; i < markerCorners.size(); i++) {
-                // for each corner, add the pixel coordinates to grid_2d
-                for (int j = 0; j < markerCorners[i].size(); j++) {
-                    // std::cout << "coordinates: " << markerCorners[i][j] << std::endl;
-                    grid_2d(0, i) = markerCorners[i][j].x;
-                    grid_2d(1, i) = markerCorners[i][j].y;
-                }
-            }
-
+            std::cout << "Number of rows: " << grid_2d.rows() << std::endl;
+            std::cout << "Number of columns: " << grid_2d.cols() << std::endl;
+            
             dataset->images.push_back(undistorted);
             dataset->handposes.push_back(handpose);
             dataset->pattern_2ds.push_back(grid_2d);
@@ -335,7 +286,11 @@ int main(int argc, char** argv) {
         ros_camera_params_file = vm["camera_params"].as<std::string>();
     }
 
-    auto dataset = Dataset::read(dataset_dir, ros_camera_params_file, vm.count("visualize"));
+    cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250);
+    // cv::Ptr<cv::aruco::CharucoBoard> board = cv::aruco::CharucoBoard::create(7, 10, 0.024f, 0.018f, dictionary);
+    cv::Ptr<cv::aruco::CharucoBoard> board = cv::aruco::CharucoBoard::create(5, 7, 0.024f, 0.018f, dictionary);
+
+    auto dataset = Dataset::read(dataset_dir, ros_camera_params_file, dictionary, board, vm.count("visualize"));
 
     std::vector<Eigen::Isometry3d> world2hands(dataset->handposes.size());
     for(int i=0; i<dataset->handposes.size(); i++) {

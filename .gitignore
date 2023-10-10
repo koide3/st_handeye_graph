@@ -1,3 +1,7 @@
 build/
 scripts/data/
 *.user
+calibration_data/20230927/
+calibration_data/20231004/
+calibration_data/20231005/
+.vscode/

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(st_handeye)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set(VISP_DIR ${VISP_DIR} "/home/hollydinkel/visp-build-release")
 set(Eigen3_DIR ${Eigen3_DIR} "/usr/include/eigen3")
-set(OpenCV_DIR ${OpenCV_DIR} "/usr/include/opencv4/opencv2") # opencv4
+set(OpenCV_DIR ${OpenCV_DIR} "/home/hollydinkel/opencv-4.x") # opencv4
 
 find_package(G2O REQUIRED)
 find_package(VISP REQUIRED)

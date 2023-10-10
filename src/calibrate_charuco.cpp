@@ -55,14 +55,6 @@ public:
 
             matrix.push_back(row);
         }
-
-        // std::cout << filename << std::endl;
-        // for(int i = 0; i < matrix.size(); i++){
-        //     for(int j = 0; j < matrix[0].size(); j++){
-        //         std::cout << matrix[i][j] << ", ";
-        //     }
-        //     std::cout << "\n";
-        // }
         
         // temp fix, bad
         Eigen::MatrixXd m(4, 4);
@@ -71,13 +63,6 @@ public:
                 m(i, j) = matrix[i][j];
             }
         }
-
-        // Eigen::MatrixXd m(matrix.size(), matrix[0].size());
-        // for(int i=0; i<matrix.size(); i++) {
-        //     for(int j=0; j<matrix[i].size(); j++) {
-        //         m(i, j) = matrix[i][j];
-        //     }
-        // }
 
         return m;
     }
@@ -158,16 +143,10 @@ public:
             cv::imwrite(dataset_dir + "/" + data_id + "_image_charuco.jpg", imageCopy);
 
             Eigen::MatrixXd grid_2d(2, PATTERN_ROWS * PATTERN_COLS);
-            std::cout << "charucoCorners.size(): " << charucoCorners.size() << std::endl;
             for (int i = 0; i < PATTERN_ROWS * PATTERN_COLS; i++) {
                 grid_2d(0, i) = charucoCorners[i].x;
                 grid_2d(1, i) = charucoCorners[i].y;
             }
-
-            std::cout << grid_2d << std::endl;
-
-            std::cout << "Number of rows: " << grid_2d.rows() << std::endl;
-            std::cout << "Number of columns: " << grid_2d.cols() << std::endl;
             
             dataset->images.push_back(undistorted);
             dataset->handposes.push_back(handpose);
